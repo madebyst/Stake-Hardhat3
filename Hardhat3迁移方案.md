@@ -322,3 +322,150 @@ npx hardhat ignition deploy ignition/modules/MetaNodeToken.ts --network localhos
 ### 7.3 .openzeppelin 目录的保留
 
 `.openzeppelin/sepolia.json` 记录了 Sepolia 上所有代理和实现合约的部署历史。**必须保留并迁移到新项目目录**，否则无法通过插件管理已部署的合约升级。
+
+---
+
+## 九、可能遇到的问题及解决方案
+
+### 问题 1：npm install 报 `Invalid Version` 错误
+
+**原因**：npm v11 在处理语义化版本解析时存在 bug。
+
+**解决方案**：`npm install --legacy-peer-deps`
+
+### 问题 2：`configVariable()` 不支持硬编码 URL
+
+**现象**：`Error HHE19: The format string "https://..." must include {variable} marker`
+
+**原因**：`configVariable()` 要求参数是变量名（如 `{SEPOLIA_RPC_URL}`），不能直接传 URL 作 fallback。
+
+**解决方案**：用 `process.env` 替代，`const URL = process.env.SEPOLIA_RPC_URL || "https://..."`。
+
+### 问题 3：`toolbox-mocha-ethers` 有 10 个 peerDependencies 需补齐
+
+**现象**：逐个报 `Plugin "hardhat-toolbox-mocha-ethers" is missing a peer dependency ...`
+
+**解决方案**：一次性安装全部 peerDependencies：
+
+```bash
+npm install --save-dev \
+  @nomicfoundation/hardhat-ethers \
+  @nomicfoundation/hardhat-ethers-chai-matchers \
+  @nomicfoundation/hardhat-ignition \
+  @nomicfoundation/hardhat-ignition-ethers \
+  @nomicfoundation/hardhat-keystore \
+  @nomicfoundation/hardhat-mocha \
+  @nomicfoundation/hardhat-network-helpers \
+  @nomicfoundation/hardhat-typechain \
+  @nomicfoundation/hardhat-verify \
+  @nomicfoundation/ignition-core \
+  mocha@^11.0.0 \
+  chai@^5.1.2 \
+  --legacy-peer-deps
+```
+
+### 问题 4：旧 `.js` 文件与 `"type": "module"` 冲突
+
+**现象**：`ReferenceError: require is not defined in ES module scope`
+
+**原因**：`"type": "module"` 全局生效后，所有 `.js` 被当作 ESM，其中的 `require()` 直接报错。
+
+**解决方案**：删除旧的 `.js` 脚本和测试文件，只保留迁移后的 `.ts` 文件。
+
+### 问题 5：`connection.provider` 没有 `getBlockNumber`/`getBalance` 方法
+
+**现象**：`TypeError: provider.getBlockNumber is not a function`
+
+**原因**：`hre.network.connect()` 返回的 `provider` 是 EIP-1193 原生 provider，不是 ethers 包装的 JSON-RPC provider，缺少 ethers 的便捷方法。
+
+**解决方案**：用 `ethers.provider`（`connection.ethers` 自带）替代原生 provider。
+
+### 问题 6：`evm_mine` 不需要改成 `provider.request()`
+
+**现象**：迁移文档中写的是从 `provider.send()` 改成 `provider.request()`，但 ethers provider 的 API 没变。
+
+**原因**：只有用 EIP-1193 原生 provider 才需要转成 `.request()` 格式。本项目用了 `ethers.provider`，所以 `.send("evm_mine", [])` 保持不变。
+
+### 问题 7：chai v5 版本升级
+
+**现象**：`toolbox-mocha-ethers` 的 peerDependencies 要求 `chai >= 5.1.2 < 7`。
+
+**解决方案**：`npm install --save-dev chai@^5.1.2`。项目原有测试用例中使用的 API（`.to.eq`, `.to.true`, `.to.length.gt`, `.to.lt`, `.to.gt`）在 chai v5 中均兼容，无需修改测试断言。
+
+### 问题 8：`network.connect()` 被标记为 deprecated
+
+**现象**：`WARNING: hre.network.connect() is deprecated`
+
+**建议**：后续可将 `hre.network.connect()` 改为 `hre.network.create()`，功能一致。当前暂不改动，等官方正式移除再处理。
+
+---
+
+## 十、迁移实况记录（2026-07-04）
+
+### 迁移环境
+
+| 项目 | 值 |
+|------|-----|
+| Hardhat 版本 | v2.28.6 → **v3.9.1** |
+| Node.js | v25.8.2 |
+| npm | v11.11.1 |
+| 迁移后项目路径 | `/Users/suntong/W3W3/Stake-Hardhat3/stake-contract/` |
+
+### 最终依赖清单
+
+```json
+{
+  "devDependencies": {
+    "hardhat": "3.9.1",
+    "@nomicfoundation/hardhat-toolbox-mocha-ethers": "latest",
+    "@nomicfoundation/hardhat-ethers": "^4.0.14",
+    "@openzeppelin/hardhat-upgrades": "latest",
+    "ethers": "^6.4.0",
+    "dotenv": "^16.4.5",
+    "chai": "^5.1.2",
+    "mocha": "^11.0.0"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.0.2",
+    "@openzeppelin/contracts-upgradeable": "^5.0.2"
+  }
+}
+```
+
+### 验证结果
+
+| 验证项 | 命令 | 结果 |
+|--------|------|------|
+| 编译 | `npx hardhat compile` | ✅ 3 个合约全部通过（solc 0.8.22） |
+| 测试 | `npx hardhat test` | ✅ 14/14 全部通过 |
+
+### 变更文件清单
+
+| 文件 | 操作 |
+|------|------|
+| `hardhat.config.ts` | 新建（替代 `.js`） |
+| `tsconfig.json` | 新建 |
+| `package.json` | 重写 |
+| `scripts/deploy.ts` | 从 `.js` 迁移 |
+| `scripts/MetaNodeStake.ts` | 从 `.js` 迁移（补了缺失的 `kind: "uups"`） |
+| `scripts/addPool.ts` | 从 `.js` 迁移 |
+| `scripts/addERC20Pool.ts` | 从 `.js` 迁移 |
+| `scripts/cancelTransaction.ts` | 从 `.js` 迁移 |
+| `scripts/checkNonce.ts` | 从 `.js` 迁移 |
+| `scripts/tokenInteract.ts` | 从 `.js` 迁移（修复未 await 的 bug） |
+| `test/01_MetaNodeStakeTest.ts` | 从 `.js` 迁移 |
+| `ignition/modules/MetaNodeToken.ts` | 从 `.js` 迁移 |
+| `contracts/*.sol` (3 个) | **未改动** |
+| 旧 `.js` 文件 | **已删除**（与 ESM 冲突） |
+
+### 实际遇到的问题（与方案预期对比）
+
+方案中实际遇到 5 问题：
+
+| 问题 | 方案是否预判 | 实际解决方案 |
+|------|-------------|-------------|
+| npm `Invalid Version` | ✅ 问题 1 | `--legacy-peer-deps` |
+| `configVariable()` URL 报错 | ❌ 未预判 | 改用 `process.env` |
+| peerDependencies 逐个缺失（提醒了 6 次） | ❌ 未预判 | 一次性装齐 |
+| 旧 `.js` 与 ESM 冲突 | ✅ 问题 9 | 删除旧文件 |
+| `provider.getBlockNumber` 不存在 | ❌ 未预判 | 改用 `ethers.provider` |
