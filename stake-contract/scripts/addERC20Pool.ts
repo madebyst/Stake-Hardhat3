@@ -1,8 +1,9 @@
 // scripts/addERC20Pool.ts
 import hre from "hardhat";
+import type { MetaNodeStake, TestERC20 } from "../types/ethers-contracts/index.js";
 
 async function main() {
-  const connection = await hre.network.connect();
+  const connection = await hre.network.create();
   const { ethers } = connection;
 
   const [signer] = await ethers.getSigners();
@@ -13,7 +14,7 @@ async function main() {
 
   const TestERC20 = await ethers.getContractFactory("TestERC20");
   const initialSupply = ethers.parseEther("1000000"); // 100万枚
-  const testToken = await TestERC20.deploy("Test Stake Token", "TST", initialSupply);
+  const testToken = await TestERC20.deploy("Test Stake Token", "TST", initialSupply) as unknown as TestERC20;
   await testToken.waitForDeployment();
 
   const testTokenAddress = await testToken.getAddress();
@@ -25,11 +26,12 @@ async function main() {
   // ============ 2. 对 Stake 合约执行 addPool ============
   console.log("\n--- 步骤 2: 添加 ERC20 资金池 ---");
 
-  const STAKE_CONTRACT_ADDRESS = "0x83f3D3686aB7319Af2cb2C6b9b90D54E176a3b18";
+  // 注意：填代理地址，不要填实现合约地址
+  const STAKE_CONTRACT_ADDRESS = "0x12f58591069B0bd7033fb306f8496E90E8fA98B2";
   // 用于本地测试:
   // const STAKE_CONTRACT_ADDRESS = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
 
-  const MetaNodeStake = await ethers.getContractAt("MetaNodeStake", STAKE_CONTRACT_ADDRESS);
+  const MetaNodeStake = await ethers.getContractAt("MetaNodeStake", STAKE_CONTRACT_ADDRESS) as unknown as MetaNodeStake;
 
   // 获取当前 nonce 和待处理交易数
   const nonce = await ethers.provider.getTransactionCount(signer.address, "latest");
@@ -65,6 +67,9 @@ async function main() {
     console.log("等待交易确认...");
 
     const receipt = await tx.wait(1);
+    if (!receipt) {
+      throw new Error("交易未在 1 个区块内确认");
+    }
     console.log("交易成功! Gas 使用:", receipt.gasUsed.toString());
     console.log("区块号:", receipt.blockNumber);
 

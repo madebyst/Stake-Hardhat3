@@ -2,7 +2,7 @@
 import hre from "hardhat";
 
 async function main() {
-  const connection = await hre.network.connect();
+  const connection = await hre.network.create();
   const { ethers } = connection;
 
   const [signer] = await ethers.getSigners();
@@ -55,6 +55,9 @@ async function main() {
     console.log("\n等待交易确认...");
 
     const receipt = await cancelTx.wait(1);
+    if (!receipt) {
+      throw new Error("交易未在 1 个区块内确认");
+    }
 
     console.log("\n✅ 交易已取消成功!");
     console.log("区块号:", receipt.blockNumber);
