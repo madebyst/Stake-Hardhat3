@@ -1,6 +1,7 @@
 // scripts/deploy.ts
 import hre from "hardhat";
 import { upgrades } from "@openzeppelin/hardhat-upgrades";
+import type { MetaNodeToken as IMetaNodeToken, MetaNodeStake as IMetaNodeStake } from "../types/ethers-contracts/index.js";
 
 async function main() {
   const connection = await hre.network.create();
@@ -10,7 +11,7 @@ async function main() {
   const [signer] = await ethers.getSigners();
 
   const MetaNodeToken = await ethers.getContractFactory("MetaNodeToken");
-  const metaNodeToken = await MetaNodeToken.deploy();
+  const metaNodeToken = await MetaNodeToken.deploy() as unknown as IMetaNodeToken;
   await metaNodeToken.waitForDeployment();
   const metaNodeTokenAddress = await metaNodeToken.getAddress();
 
@@ -29,7 +30,7 @@ async function main() {
     MetaNodeStake,
     [metaNodeTokenAddress, startBlock, endBlock, metaNodePerBlock],
     { initializer: "initialize", kind: "uups" }
-  );
+  ) as unknown as IMetaNodeStake;
 
   await stake.waitForDeployment();
 
