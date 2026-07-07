@@ -6,7 +6,7 @@ import type { TypedContractEvent, TypedDeferredTopicFilter, TypedEventLog, Typed
   
 
   export interface MetaNodeStakeInterface extends Interface {
-    getFunction(nameOrSignature: "ADMIN_ROLE" | "DEFAULT_ADMIN_ROLE" | "ETH_PID" | "MetaNode" | "MetaNodePerBlock" | "UPGRADE_INTERFACE_VERSION" | "UPGRADE_ROLE" | "addPool" | "claim" | "claimPaused" | "deposit" | "depositETH" | "endBlock" | "getMultiplier" | "getRoleAdmin" | "grantRole" | "hasRole" | "initialize" | "massUpdatePools" | "pauseClaim" | "pauseWithdraw" | "paused" | "pendingMetaNode" | "pendingMetaNodeByBlockNumber" | "pool" | "poolLength" | "proxiableUUID" | "renounceRole" | "revokeRole" | "setEndBlock" | "setMetaNode" | "setMetaNodePerBlock" | "setPoolWeight" | "setStartBlock" | "stakingBalance" | "startBlock" | "supportsInterface" | "totalPoolWeight" | "unpauseClaim" | "unpauseWithdraw" | "unstake" | "updatePool(uint256)" | "updatePool(uint256,uint256,uint256)" | "upgradeToAndCall" | "user" | "withdraw" | "withdrawAmount" | "withdrawPaused"): FunctionFragment;
+    getFunction(nameOrSignature: "ADMIN_ROLE" | "DEFAULT_ADMIN_ROLE" | "ETH_PID" | "MetaNode" | "MetaNodePerBlock" | "UPGRADE_INTERFACE_VERSION" | "UPGRADE_ROLE" | "addPool" | "claim" | "claimPaused" | "deposit" | "depositETH" | "endBlock" | "getMultiplier" | "getRoleAdmin" | "grantRole" | "hasRole" | "initialize" | "massUpdatePools" | "pause" | "pauseClaim" | "pauseWithdraw" | "paused" | "pendingMetaNode" | "pendingMetaNodeByBlockNumber" | "pool" | "poolLength" | "proxiableUUID" | "renounceRole" | "revokeRole" | "setEndBlock" | "setMetaNode" | "setMetaNodePerBlock" | "setPoolWeight" | "setStartBlock" | "stakingBalance" | "startBlock" | "supportsInterface" | "totalPoolWeight" | "unpause" | "unpauseClaim" | "unpauseWithdraw" | "unstake" | "updatePool(uint256)" | "updatePool(uint256,uint256,uint256)" | "upgradeToAndCall" | "user" | "withdraw" | "withdrawAmount" | "withdrawPaused"): FunctionFragment;
 
     getEvent(nameOrSignatureOrTopic: "AddPool" | "Claim" | "Deposit" | "Initialized" | "PauseClaim" | "PauseWithdraw" | "Paused" | "RequestUnstake" | "RoleAdminChanged" | "RoleGranted" | "RoleRevoked" | "SetEndBlock" | "SetMetaNode" | "SetMetaNodePerBlock" | "SetPoolWeight" | "SetStartBlock" | "UnpauseClaim" | "UnpauseWithdraw" | "Unpaused" | "UpdatePool" | "UpdatePoolInfo" | "Upgraded" | "Withdraw"): EventFragment;
 
@@ -29,6 +29,7 @@ encodeFunctionData(functionFragment: 'grantRole', values: [BytesLike, AddressLik
 encodeFunctionData(functionFragment: 'hasRole', values: [BytesLike, AddressLike]): string;
 encodeFunctionData(functionFragment: 'initialize', values: [AddressLike, BigNumberish, BigNumberish, BigNumberish]): string;
 encodeFunctionData(functionFragment: 'massUpdatePools', values?: undefined): string;
+encodeFunctionData(functionFragment: 'pause', values?: undefined): string;
 encodeFunctionData(functionFragment: 'pauseClaim', values?: undefined): string;
 encodeFunctionData(functionFragment: 'pauseWithdraw', values?: undefined): string;
 encodeFunctionData(functionFragment: 'paused', values?: undefined): string;
@@ -48,6 +49,7 @@ encodeFunctionData(functionFragment: 'stakingBalance', values: [BigNumberish, Ad
 encodeFunctionData(functionFragment: 'startBlock', values?: undefined): string;
 encodeFunctionData(functionFragment: 'supportsInterface', values: [BytesLike]): string;
 encodeFunctionData(functionFragment: 'totalPoolWeight', values?: undefined): string;
+encodeFunctionData(functionFragment: 'unpause', values?: undefined): string;
 encodeFunctionData(functionFragment: 'unpauseClaim', values?: undefined): string;
 encodeFunctionData(functionFragment: 'unpauseWithdraw', values?: undefined): string;
 encodeFunctionData(functionFragment: 'unstake', values: [BigNumberish, BigNumberish]): string;
@@ -78,6 +80,7 @@ decodeFunctionResult(functionFragment: 'grantRole', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'hasRole', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'initialize', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'massUpdatePools', data: BytesLike): Result;
+decodeFunctionResult(functionFragment: 'pause', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'pauseClaim', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'pauseWithdraw', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'paused', data: BytesLike): Result;
@@ -97,6 +100,7 @@ decodeFunctionResult(functionFragment: 'stakingBalance', data: BytesLike): Resul
 decodeFunctionResult(functionFragment: 'startBlock', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'supportsInterface', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'totalPoolWeight', data: BytesLike): Result;
+decodeFunctionResult(functionFragment: 'unpause', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'unpauseClaim', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'unpauseWithdraw', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'unstake', data: BytesLike): Result;
@@ -572,6 +576,14 @@ decodeFunctionResult(functionFragment: 'withdrawPaused', data: BytesLike): Resul
     
 
     
+    pause: TypedContractMethod<
+      [],
+      [void],
+      'nonpayable'
+    >
+    
+
+    
     pauseClaim: TypedContractMethod<
       [],
       [void],
@@ -720,6 +732,14 @@ decodeFunctionResult(functionFragment: 'withdrawPaused', data: BytesLike): Resul
       [],
       [bigint],
       'view'
+    >
+    
+
+    
+    unpause: TypedContractMethod<
+      [],
+      [void],
+      'nonpayable'
     >
     
 
@@ -901,6 +921,11 @@ getFunction(nameOrSignature: 'massUpdatePools'): TypedContractMethod<
       [void],
       'nonpayable'
     >;
+getFunction(nameOrSignature: 'pause'): TypedContractMethod<
+      [],
+      [void],
+      'nonpayable'
+    >;
 getFunction(nameOrSignature: 'pauseClaim'): TypedContractMethod<
       [],
       [void],
@@ -995,6 +1020,11 @@ getFunction(nameOrSignature: 'totalPoolWeight'): TypedContractMethod<
       [],
       [bigint],
       'view'
+    >;
+getFunction(nameOrSignature: 'unpause'): TypedContractMethod<
+      [],
+      [void],
+      'nonpayable'
     >;
 getFunction(nameOrSignature: 'unpauseClaim'): TypedContractMethod<
       [],

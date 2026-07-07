@@ -2,12 +2,13 @@
 import { expect } from "chai";
 import hre from "hardhat";
 import { upgrades } from "@openzeppelin/hardhat-upgrades";
+import type { HardhatUpgrades } from "@openzeppelin/hardhat-upgrades";
 
 describe("stake test", function () {
     let admin: any, user1: any, user2: any, a0: any;
     let user3: any;
     let erc20Contract: any, stakeProxyContract: any;
-    let ethers: any, upgradesApi: any, provider: any;
+    let ethers: any, upgradesApi: HardhatUpgrades, provider: any;
 
     const metaNodePerBlock = 100n;
     const blockHight = 10000;
@@ -17,7 +18,7 @@ describe("stake test", function () {
 
     before(async function () {
         // Hardhat 3: 显式创建网络连接
-        const connection = await hre.network.connect();
+        const connection = await hre.network.create();
         ethers = connection.ethers;
         provider = ethers.provider;  // 使用 ethers 包装的 provider（支持 getBlockNumber/getBalance 等）
         upgradesApi = await upgrades(hre, connection);
@@ -86,6 +87,40 @@ describe("stake test", function () {
         await stakeProxyContract.connect(admin).unpauseClaim();
         const res = await stakeProxyContract.claimPaused();
         expect(res).to.false;
+    });
+
+    it("pause", async () => {
+        // admin 暂停合约
+        await stakeProxyContract.connect(admin).pause();
+        const paused = await stakeProxyContract.paused();
+        expect(paused).to.true;
+
+        // 暂停后 deposit 应该 revert
+        await expect(
+            stakeProxyContract.connect(user1).depositETH({ value: ethers.parseEther("1") })
+        ).to.revert(ethers);
+
+        // 暂停后 unstake 应该 revert
+        await expect(
+            stakeProxyContract.connect(user1).unstake(0, ethers.parseEther("1"))
+        ).to.revert(ethers);
+
+        // 非 admin 不能暂停
+        await expect(
+            stakeProxyContract.connect(user1).pause()
+        ).to.revert(ethers);
+    });
+
+    it("unpause", async () => {
+        // admin 恢复合约
+        await stakeProxyContract.connect(admin).unpause();
+        const paused = await stakeProxyContract.paused();
+        expect(paused).to.false;
+
+        // 非 admin 不能恢复
+        await expect(
+            stakeProxyContract.connect(user1).unpause()
+        ).to.revert(ethers);
     });
 
     it("setStartBlock", async () => {

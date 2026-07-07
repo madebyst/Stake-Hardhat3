@@ -223,6 +223,20 @@ contract MetaNodeStake is
     }
 
     /**
+     * @notice Pause the contract (emergency stop). Can only be called by admin.
+     */
+    function pause() public onlyRole(ADMIN_ROLE) {
+        _pause();
+    }
+
+    /**
+     * @notice Unpause the contract. Can only be called by admin.
+     */
+    function unpause() public onlyRole(ADMIN_ROLE) {
+        _unpause();
+    }
+
+    /**
      * @notice Pause withdraw. Can only be called by admin.
      */
     function pauseWithdraw() public onlyRole(ADMIN_ROLE) {

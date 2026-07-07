@@ -10,21 +10,21 @@ import * as Contracts from "./index.js";
 
 declare module "@nomicfoundation/hardhat-ethers/types" {
   interface HardhatEthersHelpers extends HardhatEthersHelpersBase {
-  getContractFactory(name: 'MetaNodeToken', signerOrOptions?: ethers.Signer | FactoryOptions): Promise<Contracts.MetaNodeToken__factory>
+  getContractFactory(name: 'TestERC20', signerOrOptions?: ethers.Signer | FactoryOptions): Promise<Contracts.TestERC20__factory>
+getContractFactory(name: 'MetaNodeToken', signerOrOptions?: ethers.Signer | FactoryOptions): Promise<Contracts.MetaNodeToken__factory>
 getContractFactory(name: 'MetaNodeStake', signerOrOptions?: ethers.Signer | FactoryOptions): Promise<Contracts.MetaNodeStake__factory>
-getContractFactory(name: 'TestERC20', signerOrOptions?: ethers.Signer | FactoryOptions): Promise<Contracts.TestERC20__factory>
 
-  getContractAt(name: 'MetaNodeToken', address: string | ethers.Addressable, signer?: ethers.Signer): Promise<Contracts.MetaNodeToken>
+  getContractAt(name: 'TestERC20', address: string | ethers.Addressable, signer?: ethers.Signer): Promise<Contracts.TestERC20>
+getContractAt(name: 'MetaNodeToken', address: string | ethers.Addressable, signer?: ethers.Signer): Promise<Contracts.MetaNodeToken>
 getContractAt(name: 'MetaNodeStake', address: string | ethers.Addressable, signer?: ethers.Signer): Promise<Contracts.MetaNodeStake>
-getContractAt(name: 'TestERC20', address: string | ethers.Addressable, signer?: ethers.Signer): Promise<Contracts.TestERC20>
 
-  deployContract(name: 'MetaNodeToken', signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.MetaNodeToken>
+  deployContract(name: 'TestERC20', signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.TestERC20>
+deployContract(name: 'MetaNodeToken', signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.MetaNodeToken>
 deployContract(name: 'MetaNodeStake', signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.MetaNodeStake>
-deployContract(name: 'TestERC20', signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.TestERC20>
 
-  deployContract(name: 'MetaNodeToken', args: any[], signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.MetaNodeToken>
+  deployContract(name: 'TestERC20', args: any[], signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.TestERC20>
+deployContract(name: 'MetaNodeToken', args: any[], signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.MetaNodeToken>
 deployContract(name: 'MetaNodeStake', args: any[], signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.MetaNodeStake>
-deployContract(name: 'TestERC20', args: any[], signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.TestERC20>
 
     // default types
     getContractFactory(
